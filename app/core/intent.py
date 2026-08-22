@@ -10,6 +10,7 @@ with an LLM-based classifier in a future version.
 
 Usage:
     from app.core.intent import IntentClassifier
+
     classifier = IntentClassifier()
     result = classifier.classify("What projects have you built?")
     print(result.intent, result.confidence)
@@ -22,29 +23,29 @@ from dataclasses import dataclass, field
 from enum import Enum
 
 
-# ── Intent Types ─────────────────────────────────────────────────
+# ── Intent Types ─────────────────────────────────────────────────────────────
 
 
 class IntentType(str, Enum):
     """The five supported query intents."""
 
     IDENTITY_FACTUAL = "identity_factual"
-    """Broad identity / introduction questions: 'Who are you?'"""
+    """Broad identity / introduction questions."""
 
     JAANVI_FACTUAL = "jaanvi_factual"
-    """Specific factual questions about Jaanvi: 'What projects have you built?'"""
+    """Specific factual questions about Jaanvi."""
 
     TECHNICAL_REASONING = "technical_reasoning"
-    """General technical / AI / ML questions: 'How would you design a cache?'"""
+    """General technical / AI / ML questions."""
 
     HYBRID = "hybrid"
-    """Blends Jaanvi facts with technical reasoning: 'How did you build your ML pipeline?'"""
+    """Questions combining Jaanvi facts with technical reasoning."""
 
     OFF_TOPIC = "off_topic"
     """Greetings, meta questions, or unrelated content."""
 
 
-# ── Result Type ──────────────────────────────────────────────────
+# ── Result Type ──────────────────────────────────────────────────────────────
 
 
 @dataclass
@@ -64,40 +65,42 @@ class IntentResult:
     """Which patterns or keywords contributed to the classification."""
 
 
-# ═══════════════════════════════════════════════════════════════
-# Signal Definitions
-# ═══════════════════════════════════════════════════════════════
-#
-# Phrases are checked via substring match on the lowered query.
-# Keywords are checked via token membership after tokenisation.
+# ── Signal Definitions ──────────────────────────────────────────────────────
 
-# ── Greeting / Meta (→ OFF_TOPIC) ────────────────────────────
 
 _GREETING_PHRASES: list[str] = [
-    "hello", "hi there", "hey there", "good morning",
-    "good afternoon", "good evening", "howdy",
-    "thank you", "thanks a lot", "thanks for",
-    "goodbye", "bye bye", "see you",
+    "hello",
+    "hi",
+    "hey",
+    "hey there",
+    "hello there",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "thanks",
+    "thank you",
+    "thank you so much",
+    "bye",
+    "goodbye",
 ]
 
-_GREETING_TOKENS: set[str] = {
-    "hi", "hey", "hello", "thanks", "goodbye", "bye",
-}
 
 _META_PHRASES: list[str] = [
     "what can you do",
-    "how do you work",
     "what are you capable of",
-    "what are your capabilities",
-    "what should i ask",
-    "how does this work",
-    "can you help me",
+    "how can you help",
+    "help me",
+    "what is this",
+    "what's this",
+    "who made you",
+    "who created you",
 ]
 
-# ── Identity (→ IDENTITY_FACTUAL) ────────────────────────────
 
 _IDENTITY_PHRASES: list[str] = [
     "who are you",
+    "who are you?",
+    "tell me about yourself",
     "tell me about yourself",
     "introduce yourself",
     "describe yourself",
@@ -115,21 +118,51 @@ _IDENTITY_PHRASES: list[str] = [
     "brief about yourself",
 ]
 
-# ── Jaanvi Factual Signals ───────────────────────────────────
 
 _JAANVI_SECTION_KEYWORDS: set[str] = {
-    "projects", "project", "portfolio",
-    "skills", "skill", "technologies", "tech",
-    "education", "degree", "university", "college", "school",
-    "experience", "internship", "internships", "job",
-    "achievements", "awards", "certifications", "honors",
-    "interests", "hobbies",
-    "resume", "cv", "qualifications",
+    "projects",
+    "project",
+    "portfolio",
+    "skills",
+    "skill",
+    "technologies",
+    "technology",
+    "tech",
+    "education",
+    "degree",
+    "university",
+    "college",
+    "school",
+    "experience",
+    "internship",
+    "internships",
+    "job",
+    "jobs",
+    "achievements",
+    "achievement",
+    "awards",
+    "award",
+    "certifications",
+    "certification",
+    "honors",
+    "interests",
+    "interest",
+    "hobbies",
+    "hobby",
+    "resume",
+    "cv",
+    "qualifications",
+    "qualification",
 }
 
+
 _JAANVI_REFERENCE_TOKENS: set[str] = {
-    "your", "you", "jaanvi", "jaanvi's",
+    "your",
+    "you",
+    "jaanvi",
+    "jaanvi's",
 }
+
 
 _JAANVI_ACTION_PHRASES: list[str] = [
     "have you built",
@@ -156,9 +189,24 @@ _JAANVI_ACTION_PHRASES: list[str] = [
     "your experience with",
     "your work on",
     "your background in",
+    # Natural-language hiring and fit questions
+    "why should we hire",
+    "why hire",
+    "good candidate",
+    "strong candidate",
+    "good fit",
+    "suitable for",
+    "consider her",
+    "consider jaanvi",
+    "hire karna",
+    "hire karein",
+    "kyu hire",
+    "kyun hire",
 ]
 
-# ── Technical Signals ────────────────────────────────────────
+
+# ── Technical Signals ───────────────────────────────────────────────────────
+
 
 _TECHNICAL_PHRASES: list[str] = [
     "how would you approach",
@@ -194,37 +242,93 @@ _TECHNICAL_PHRASES: list[str] = [
     "best practices for",
 ]
 
+
 _TECHNICAL_KEYWORDS: set[str] = {
-    "algorithm", "algorithms",
-    "architecture", "microservice", "microservices",
-    "api", "rest", "graphql", "grpc",
-    "database", "sql", "nosql", "postgresql", "mongodb",
-    "deploy", "deployment", "kubernetes", "docker", "ci/cd",
-    "optimize", "optimization", "scalability", "latency",
-    "cache", "caching", "redis",
-    "implement", "implementation",
-    "neural", "transformer", "embeddings", "llm", "gpt",
-    "gradient", "backpropagation", "regularization",
-    "cnn", "rnn", "lstm", "gan", "vae", "bert",
-    "training", "inference", "fine-tuning", "finetuning",
-    "supervised", "unsupervised", "reinforcement",
-    "regression", "classification", "clustering",
-    "precision", "recall", "f1",
-    "pipeline", "etl", "workflow",
-    "distributed", "concurrent", "parallel",
-    "encryption", "authentication", "authorization",
-    "complexity", "big-o",
-    "testing", "tdd", "unit-test",
-    "agile", "scrum",
-    "data-structure", "tree", "graph", "heap",
-    "sorting", "searching", "hashing",
+    "algorithm",
+    "algorithms",
+    "architecture",
+    "microservice",
+    "microservices",
+    "api",
+    "rest",
+    "graphql",
+    "grpc",
+    "database",
+    "sql",
+    "nosql",
+    "postgresql",
+    "mongodb",
+    "deploy",
+    "deployment",
+    "kubernetes",
+    "docker",
+    "ci/cd",
+    "optimize",
+    "optimization",
+    "scalability",
+    "latency",
+    "cache",
+    "caching",
+    "redis",
+    "implement",
+    "implementation",
+    "neural",
+    "transformer",
+    "embeddings",
+    "llm",
+    "gpt",
+    "gradient",
+    "backpropagation",
+    "regularization",
+    "cnn",
+    "rnn",
+    "lstm",
+    "gan",
+    "vae",
+    "bert",
+    "training",
+    "inference",
+    "fine-tuning",
+    "finetuning",
+    "supervised",
+    "unsupervised",
+    "reinforcement",
+    "regression",
+    "classification",
+    "clustering",
+    "precision",
+    "recall",
+    "f1",
+    "pipeline",
+    "etl",
+    "workflow",
+    "distributed",
+    "concurrent",
+    "parallel",
+    "encryption",
+    "authentication",
+    "authorization",
+    "complexity",
+    "big-o",
+    "testing",
+    "tdd",
+    "unit-test",
+    "agile",
+    "scrum",
+    "data-structure",
+    "tree",
+    "graph",
+    "heap",
+    "sorting",
+    "searching",
+    "hashing",
 }
 
-# ── Hybrid Detection Phrases ─────────────────────────────────
-#
-# These phrases combine Jaanvi reference with technical inquiry.
+
+# ── Hybrid Detection ────────────────────────────────────────────────────────
 
 _HYBRID_PHRASES: list[str] = [
+    # Existing hybrid questions
     "how did you build",
     "how did you approach",
     "how did you design",
@@ -244,48 +348,65 @@ _HYBRID_PHRASES: list[str] = [
     "how does your system",
     "improve your",
     "improve upon your",
+
+    # Jaanvi-specific capability questions
+    "can jaanvi build",
+    "can jaanvi create",
+    "can jaanvi implement",
+    "can jaanvi design",
+    "can jaanvi develop",
+    "can jaanvi make",
+
+    "could jaanvi build",
+    "could jaanvi create",
+    "could jaanvi implement",
+    "could jaanvi design",
+    "could jaanvi develop",
+    "could jaanvi make",
+
+    "is jaanvi able to build",
+    "is jaanvi able to create",
+    "is jaanvi able to implement",
+    "is jaanvi able to design",
+    "is jaanvi able to develop",
+
+    "is jaanvi capable of building",
+    "is jaanvi capable of creating",
+    "is jaanvi capable of implementing",
 ]
 
 
-# ═══════════════════════════════════════════════════════════════
-# Classifier
-# ═══════════════════════════════════════════════════════════════
+# ── Classifier ───────────────────────────────────────────────────────────────
 
 
 class IntentClassifier:
     """
-    Rule-based intent classifier.
+    Deterministic rule-based intent classifier.
 
-    Normalises the query, matches against keyword and phrase signals,
-    scores each intent category, and returns the dominant intent with
-    a heuristic confidence score.
+    The classifier produces one of five intent types:
 
-    This class is stateless and safe to reuse across requests.
+        identity_factual
+        jaanvi_factual
+        technical_reasoning
+        hybrid
+        off_topic
     """
-
-    # ── Public API ───────────────────────────────────────────
 
     def classify(self, query: str) -> IntentResult:
         """
-        Classify a user query into an intent.
+        Classify a user query.
 
         Args:
-            query: The raw user query string.
+            query: Original user query.
 
         Returns:
-            An IntentResult with intent, confidence, original query,
-            and which signals matched.
+            IntentResult containing intent, confidence and matched signals.
         """
-        if not query or not query.strip():
-            return IntentResult(
-                intent=IntentType.OFF_TOPIC,
-                confidence=0.9,
-                query=query,
-                matched_signals=["empty_query"],
-            )
 
+        original_query = query
         query_lower = query.lower().strip()
         tokens = self._tokenize(query_lower)
+
         signals: dict[str, list[str]] = {
             "greeting": [],
             "meta": [],
@@ -295,39 +416,48 @@ class IntentClassifier:
             "hybrid": [],
         }
 
-        # ── 1. Collect signals ───────────────────────────────
-
-        self._match_greeting_signals(query_lower, tokens, signals)
+        self._match_greeting_signals(query_lower, signals)
         self._match_identity_signals(query_lower, signals)
         self._match_jaanvi_signals(query_lower, tokens, signals)
-        self._match_technical_signals(query_lower, tokens, signals)
-        self._match_hybrid_signals(query_lower, signals)
+        self._match_technical_signals(
+            query_lower,
+            tokens,
+            signals,
+        )
+        self._match_hybrid_signals(
+            query_lower,
+            signals,
+        )
 
-        # ── 2. Score each category ───────────────────────────
+        scores = self._compute_scores(
+            signals,
+            tokens,
+        )
 
-        scores = self._compute_scores(signals, tokens)
+        return self._decide(
+            scores,
+            signals,
+            original_query,
+        )
 
-        # ── 3. Decide intent ─────────────────────────────────
-
-        return self._decide(scores, signals, query)
-
-    # ── Signal Matchers ──────────────────────────────────────
+    # ── Signal Matching ─────────────────────────────────────────────────────
 
     @staticmethod
     def _match_greeting_signals(
         query_lower: str,
-        tokens: list[str],
         signals: dict[str, list[str]],
     ) -> None:
         for phrase in _GREETING_PHRASES:
             if phrase in query_lower:
-                signals["greeting"].append(f"phrase:{phrase}")
-        for token in tokens:
-            if token in _GREETING_TOKENS:
-                signals["greeting"].append(f"token:{token}")
+                signals["greeting"].append(
+                    f"phrase:{phrase}"
+                )
+
         for phrase in _META_PHRASES:
             if phrase in query_lower:
-                signals["meta"].append(f"phrase:{phrase}")
+                signals["meta"].append(
+                    f"phrase:{phrase}"
+                )
 
     @staticmethod
     def _match_identity_signals(
@@ -336,7 +466,9 @@ class IntentClassifier:
     ) -> None:
         for phrase in _IDENTITY_PHRASES:
             if phrase in query_lower:
-                signals["identity"].append(f"phrase:{phrase}")
+                signals["identity"].append(
+                    f"phrase:{phrase}"
+                )
 
     @staticmethod
     def _match_jaanvi_signals(
@@ -344,20 +476,26 @@ class IntentClassifier:
         tokens: list[str],
         signals: dict[str, list[str]],
     ) -> None:
-        # Possessive / reference tokens
-        refs_found = [t for t in tokens if t in _JAANVI_REFERENCE_TOKENS]
-        for ref in refs_found:
-            signals["jaanvi"].append(f"ref:{ref}")
+        # Section-specific Jaanvi questions.
+        for token in tokens:
+            if token in _JAANVI_SECTION_KEYWORDS:
+                signals["jaanvi"].append(
+                    f"section:{token}"
+                )
 
-        # Section keywords
-        sections_found = [t for t in tokens if t in _JAANVI_SECTION_KEYWORDS]
-        for sec in sections_found:
-            signals["jaanvi"].append(f"section:{sec}")
+        # Explicit references to Jaanvi / "you" / "your".
+        for token in tokens:
+            if token in _JAANVI_REFERENCE_TOKENS:
+                signals["jaanvi"].append(
+                    f"ref:{token}"
+                )
 
-        # Action phrases ("have you built", etc.)
+        # Action phrases that ask about Jaanvi's experience.
         for phrase in _JAANVI_ACTION_PHRASES:
             if phrase in query_lower:
-                signals["jaanvi"].append(f"action:{phrase}")
+                signals["jaanvi"].append(
+                    f"action:{phrase}"
+                )
 
     @staticmethod
     def _match_technical_signals(
@@ -367,10 +505,15 @@ class IntentClassifier:
     ) -> None:
         for phrase in _TECHNICAL_PHRASES:
             if phrase in query_lower:
-                signals["technical"].append(f"phrase:{phrase}")
+                signals["technical"].append(
+                    f"phrase:{phrase}"
+                )
+
         for token in tokens:
             if token in _TECHNICAL_KEYWORDS:
-                signals["technical"].append(f"keyword:{token}")
+                signals["technical"].append(
+                    f"keyword:{token}"
+                )
 
     @staticmethod
     def _match_hybrid_signals(
@@ -379,9 +522,11 @@ class IntentClassifier:
     ) -> None:
         for phrase in _HYBRID_PHRASES:
             if phrase in query_lower:
-                signals["hybrid"].append(f"phrase:{phrase}")
+                signals["hybrid"].append(
+                    f"phrase:{phrase}"
+                )
 
-    # ── Scoring ──────────────────────────────────────────────
+    # ── Scoring ─────────────────────────────────────────────────────────────
 
     @staticmethod
     def _compute_scores(
@@ -394,31 +539,59 @@ class IntentClassifier:
         Phrases are weighted higher than individual keywords because
         they carry stronger intent signal.
         """
-        def _weighted_count(signal_list: list[str]) -> float:
+
+        def _weighted_count(
+            signal_list: list[str],
+        ) -> float:
             score = 0.0
-            for s in signal_list:
-                if s.startswith("phrase:") or s.startswith("action:"):
+
+            for signal in signal_list:
+                if (
+                    signal.startswith("phrase:")
+                    or signal.startswith("action:")
+                ):
                     score += 2.0
-                elif s.startswith("section:"):
+
+                elif signal.startswith("section:"):
                     score += 1.5
-                else:  # token:, ref:, keyword:
+
+                else:
                     score += 1.0
+
             return score
 
         scores: dict[str, float] = {}
-        scores["greeting"] = _weighted_count(signals["greeting"]) + _weighted_count(signals["meta"])
-        scores["identity"] = _weighted_count(signals["identity"])
-        scores["jaanvi"] = _weighted_count(signals["jaanvi"])
-        scores["technical"] = _weighted_count(signals["technical"])
-        scores["hybrid"] = _weighted_count(signals["hybrid"])
 
-        # Boost hybrid if both jaanvi and technical have signals
+        scores["greeting"] = (
+            _weighted_count(signals["greeting"])
+            + _weighted_count(signals["meta"])
+        )
+
+        scores["identity"] = _weighted_count(
+            signals["identity"]
+        )
+
+        scores["jaanvi"] = _weighted_count(
+            signals["jaanvi"]
+        )
+
+        scores["technical"] = _weighted_count(
+            signals["technical"]
+        )
+
+        scores["hybrid"] = _weighted_count(
+            signals["hybrid"]
+        )
+
+        # Existing behavior:
+        # If both Jaanvi and technical signals are present,
+        # hybrid gets an additional boost.
         if signals["jaanvi"] and signals["technical"]:
             scores["hybrid"] += 1.5
 
         return scores
 
-    # ── Decision Logic ───────────────────────────────────────
+    # ── Decision Logic ──────────────────────────────────────────────────────
 
     @staticmethod
     def _decide(
@@ -428,87 +601,151 @@ class IntentClassifier:
     ) -> IntentResult:
         """Apply decision rules to produce the final IntentResult."""
 
-        all_matched = []
+        all_matched: list[str] = []
+
         for category_signals in signals.values():
             all_matched.extend(category_signals)
 
-        # ── Greeting / meta detection ────────────────────────
+        # ── Greeting / meta detection ───────────────────────────────────────
+        #
         # Greeting/meta wins unless there are strong Jaanvi signals
-        # (section keywords or action phrases — not just bare 'you').
+        # or technical/identity signals.
+
         has_strong_jaanvi = any(
-            s.startswith("section:") or s.startswith("action:")
-            for s in signals["jaanvi"]
+            signal.startswith("section:")
+            or signal.startswith("action:")
+            for signal in signals["jaanvi"]
         )
-        if scores["greeting"] > 0 and not has_strong_jaanvi and scores["technical"] == 0 and scores["identity"] == 0:
+
+        if (
+            scores["greeting"] > 0
+            and not has_strong_jaanvi
+            and scores["technical"] == 0
+            and scores["identity"] == 0
+        ):
             return IntentResult(
                 intent=IntentType.OFF_TOPIC,
                 confidence=0.9,
                 query=original_query,
-                matched_signals=signals["greeting"] + signals["meta"],
+                matched_signals=(
+                    signals["greeting"]
+                    + signals["meta"]
+                ),
             )
 
-        # ── Explicit hybrid phrases take priority
+        # ── Explicit hybrid phrases take priority ───────────────────────────
+        #
+        # This is important for questions such as:
+        #
+        # "Can Jaanvi build a spam classifier?"
+        #
+        # The query explicitly references Jaanvi and asks about a
+        # technical capability.
+
         if scores["hybrid"] >= 2.0:
-            conf = min(0.6 + scores["hybrid"] * 0.05, 0.9)
+            confidence = min(
+                0.6 + scores["hybrid"] * 0.05,
+                0.9,
+            )
+
             return IntentResult(
                 intent=IntentType.HYBRID,
-                confidence=round(conf, 2),
+                confidence=round(confidence, 2),
                 query=original_query,
                 matched_signals=all_matched,
             )
 
-        # ── Both jaanvi and technical signals present → hybrid
-        if scores["jaanvi"] >= 2.0 and scores["technical"] >= 2.0:
-            total = scores["jaanvi"] + scores["technical"]
-            conf = min(0.55 + total * 0.03, 0.85)
+        # ── Both Jaanvi and technical signals present ───────────────────────
+
+        if (
+            scores["jaanvi"] >= 2.0
+            and scores["technical"] >= 2.0
+        ):
+            total = (
+                scores["jaanvi"]
+                + scores["technical"]
+            )
+
+            confidence = min(
+                0.55 + total * 0.03,
+                0.85,
+            )
+
             return IntentResult(
                 intent=IntentType.HYBRID,
-                confidence=round(conf, 2),
+                confidence=round(confidence, 2),
                 query=original_query,
                 matched_signals=all_matched,
             )
 
-        # ── Identity dominates
-        if scores["identity"] >= 2.0 and scores["identity"] >= scores["jaanvi"]:
-            conf = min(0.6 + scores["identity"] * 0.08, 0.95)
+        # ── Identity dominates ──────────────────────────────────────────────
+
+        if (
+            scores["identity"] >= 2.0
+            and scores["identity"] >= scores["jaanvi"]
+        ):
+            confidence = min(
+                0.6 + scores["identity"] * 0.08,
+                0.95,
+            )
+
             return IntentResult(
                 intent=IntentType.IDENTITY_FACTUAL,
-                confidence=round(conf, 2),
+                confidence=round(confidence, 2),
                 query=original_query,
                 matched_signals=signals["identity"],
             )
 
-        # ── Jaanvi factual dominates
-        if scores["jaanvi"] >= 2.0 and scores["jaanvi"] > scores["technical"]:
-            conf = min(0.6 + scores["jaanvi"] * 0.05, 0.9)
+        # ── Jaanvi factual dominates ────────────────────────────────────────
+
+        if (
+            scores["jaanvi"] >= 2.0
+            and scores["jaanvi"] > scores["technical"]
+        ):
+            confidence = min(
+                0.6 + scores["jaanvi"] * 0.05,
+                0.9,
+            )
+
             return IntentResult(
                 intent=IntentType.JAANVI_FACTUAL,
-                confidence=round(conf, 2),
+                confidence=round(confidence, 2),
                 query=original_query,
                 matched_signals=signals["jaanvi"],
             )
 
-        # ── Technical dominates
+        # ── Technical dominates ─────────────────────────────────────────────
+
         if scores["technical"] >= 1.0:
-            conf = min(0.5 + scores["technical"] * 0.06, 0.9)
+            confidence = min(
+                0.5 + scores["technical"] * 0.06,
+                0.9,
+            )
+
             return IntentResult(
                 intent=IntentType.TECHNICAL_REASONING,
-                confidence=round(conf, 2),
+                confidence=round(confidence, 2),
                 query=original_query,
                 matched_signals=signals["technical"],
             )
 
-        # ── Weak jaanvi signal (e.g. just a section keyword)
+        # ── Weak Jaanvi signal ───────────────────────────────────────────────
+
         if scores["jaanvi"] >= 1.0:
-            conf = min(0.4 + scores["jaanvi"] * 0.05, 0.7)
+            confidence = min(
+                0.4 + scores["jaanvi"] * 0.05,
+                0.7,
+            )
+
             return IntentResult(
                 intent=IntentType.JAANVI_FACTUAL,
-                confidence=round(conf, 2),
+                confidence=round(confidence, 2),
                 query=original_query,
                 matched_signals=signals["jaanvi"],
             )
 
-        # ── Weak identity signal
+        # ── Weak identity signal ────────────────────────────────────────────
+
         if scores["identity"] > 0:
             return IntentResult(
                 intent=IntentType.IDENTITY_FACTUAL,
@@ -517,15 +754,15 @@ class IntentClassifier:
                 matched_signals=signals["identity"],
             )
 
-        # ── Fallback: off-topic
-        return IntentResult(
-            intent=IntentType.OFF_TOPIC,
-            confidence=0.4,
-            query=original_query,
-            matched_signals=["no_matching_signals"],
-        )
+        # ── Fallback: off-topic ─────────────────────────────────────────────
 
-    # ── Tokenisation ─────────────────────────────────────────
+        return IntentResult(
+        intent=IntentType.OFF_TOPIC,
+        confidence=0.5,
+        query=original_query,
+        matched_signals=["no_matching_signals"],
+)
+    # ── Tokenisation ────────────────────────────────────────────────────────
 
     @staticmethod
     def _tokenize(text: str) -> list[str]:
@@ -533,6 +770,10 @@ class IntentClassifier:
         Split lowered text into tokens.
 
         Preserves characters like -, /, #, + so terms such as
-        'ci/cd', 'c++', 'c#', 'big-o' survive tokenisation.
+        'ci/cd', 'c++', 'c#', and 'big-o' survive tokenisation.
         """
-        return re.findall(r"[a-z0-9#+/\-]+", text)
+
+        return re.findall(
+            r"[a-z0-9#+/\-]+",
+            text,
+        )
