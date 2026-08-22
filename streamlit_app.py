@@ -6,7 +6,7 @@ import streamlit as st
 # CONFIGURATION
 # ============================================================
 
-API_URL = "http://127.0.0.1:8000/api/v1/chat"
+API_URL = "https://ask-jaanvi.onrender.com"
 
 
 # ============================================================
