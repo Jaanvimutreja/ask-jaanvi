@@ -1,0 +1,200 @@
+metadata:
+  version: "1.0"
+  last_updated: "2026-08-22"
+  truth_policy: >-
+    Only entries with status 'demonstrated', 'current', or 'past'
+    may be stated as things Jaanvi has done. All other statuses
+    must be explicitly qualified. If information is not present
+    in this knowledge base, the AI must not claim it.
+
+identity:
+  name: "Jaanvi Mutreja"
+  role: "Full-Stack AI Engineer"
+  summary: >-
+    Jaanvi is a B.Tech Computer Science and Engineering student
+    specializing in AI/ML, focused on building practical AI-powered
+    systems across frontend, backend, APIs and AI integration.
+  location: ""
+
+education:
+  - institution: "Bennett University"
+    degree: "B.Tech"
+    field: "Computer Science and Engineering — AI/ML"
+    dates: "2024 - 2028"
+    status: current
+
+skills:
+  - category: "Programming Languages"
+    items:
+      - name: "Python"
+        status: current
+      - name: "C++"
+        status: current
+      - name: "Java"
+        status: past
+
+  - category: "AI / ML / NLP"
+    items:
+      - name: "AI/ML"
+        status: current
+      - name: "NLP"
+        status: current
+      - name: "Prompt Engineering"
+        status: demonstrated
+      - name: "LLM Integration"
+        status: demonstrated
+
+  - category: "Frontend"
+    items:
+      - name: "React"
+        status: demonstrated
+      - name: "Next.js"
+        status: demonstrated
+      - name: "Streamlit"
+        status: demonstrated
+      - name: "JavaScript"
+        status: demonstrated
+      - name: "CSS"
+        status: demonstrated
+
+  - category: "Backend / APIs"
+    items:
+      - name: "FastAPI"
+        status: demonstrated
+      - name: "Uvicorn"
+        status: demonstrated
+      - name: "REST APIs"
+        status: demonstrated
+
+  - category: "AI Technologies"
+    items:
+      - name: "Groq API"
+        status: demonstrated
+      - name: "Llama LLM"
+        status: demonstrated
+
+  - category: "Development"
+    items:
+      - name: "Git"
+        status: demonstrated
+      - name: "GitHub"
+        status: demonstrated
+      - name: "AI-assisted development"
+        status: current
+
+projects:
+  - name: "Authentix"
+    description: >-
+      A ticket booking system designed to reduce ticket black marketing
+      through Aadhaar-based verification.
+    technologies:
+      - "Python"
+    outcomes:
+      - "Used Aadhaar-based verification for ticket booking."
+      - "Focused on preventing ticket black marketing."
+    status: past
+
+  - name: "Readify"
+    description: >-
+      A Tinder-style book recommendation application where users
+      swipe right on books they like and left on books they do not like.
+    technologies:
+      - "Java"
+    outcomes:
+      - "Implemented a swipe-based book discovery experience."
+    status: past
+
+  - name: "Gesture Control"
+    description: >-
+      A real-time hand-gesture system that allows a computer or laptop
+      to be controlled virtually without directly touching it.
+    technologies:
+      - "Python"
+      - "MediaPipe"
+      - "PyAutoGUI"
+      - "WebSocket"
+    outcomes:
+      - "Enables touch-free computer interaction."
+      - "Explores hygiene-sensitive interaction use cases."
+      - "Explores operation-theatre interaction use cases."
+    status: demonstrated
+
+  - name: "Code Reviewer AI"
+    description: >-
+      An AI-powered code review application that reviews code,
+      identifies errors, provides optimization suggestions and
+      generates code improvement suggestions.
+    technologies:
+      - "React"
+      - "Vite"
+      - "JavaScript"
+      - "CSS"
+      - "Python"
+      - "FastAPI"
+      - "Uvicorn"
+      - "Groq API"
+      - "Llama LLM"
+      - "Prompt Engineering"
+    outcomes:
+      - "Reviews code across multiple programming languages."
+      - "Identifies code errors."
+      - "Provides optimization suggestions."
+      - "Provides code improvement suggestions."
+    status: demonstrated
+
+experience:
+  - role: "Marketing Head"
+    organization: "Spark E-Cell, Bennett University"
+    dates: ""
+    highlights:
+      - "Held a marketing leadership role in the university entrepreneurship ecosystem."
+    status: demonstrated
+
+achievements:
+  - title: "Top 1000 — IIT Delhi Ideathon"
+    description: >-
+      Selected among the Top 1000 in the IIT Delhi Ideathon.
+    date: ""
+    status: demonstrated
+
+interests:
+  - topic: "AI Engineering"
+    context: >-
+      Interested in building practical AI-powered systems.
+    status: current
+
+  - topic: "NLP"
+    context: >-
+      Interested in NLP and conversational AI.
+    status: current
+
+  - topic: "End-to-End AI Applications"
+    context: >-
+      Interested in building AI products across frontend, backend,
+      APIs and AI integration.
+    status: current
+
+  - topic: "Real-world Problem Solving"
+    context: >-
+      Interested in using technology to solve practical problems
+      through AI-powered systems.
+    status: current
+
+approach:
+  problem_solving: >-
+    Focuses on turning ideas into practical working systems,
+    exploring real-world use cases and connecting technical
+    components into an end-to-end product.
+
+  learning_philosophy: >-
+    Learns through building projects, experimentation and
+    AI-assisted development while understanding the architecture
+    and implementation of the systems being built.
+
+  engineering_values:
+    - "Build practical solutions"
+    - "Understand what is being built"
+    - "Use AI as a development tool, not as a substitute for understanding"
+    - "Explore real-world applications"
+    - "Build end-to-end systems"
+    - "Keep AI as a core specialization while developing full-stack capability"
